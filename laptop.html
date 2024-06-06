@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laptop Inventory</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        .form-container input {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laptop Inventory</h1>
+    <div class="form-container">
+        <input type="text" id="brand" placeholder="Brand">
+        <input type="text" id="model" placeholder="Model">
+        <input type="text" id="serialNumber" placeholder="Serial Number">
+        <input type="number" id="quantity" placeholder="Quantity">
+        <input type="number" id="price" placeholder="Price">
+        <button onclick="addLaptop()">Add Laptop</button>
+    </div>
+    <table id="laptopTable">
+        <thead>
+            <tr>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Serial Number</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total Value</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Inventory items will be injected here -->
+        </tbody>
+    </table>
+    <script>
+        let laptops = JSON.parse(localStorage.getItem('laptops')) || [];
+
+        function displayLaptops() {
+            const tableBody = document.querySelector('#laptopTable tbody');
+            tableBody.innerHTML = '';
+            laptops.forEach((laptop, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${laptop.brand}</td>
+                    <td>${laptop.model}</td>
+                    <td>${laptop.serialNumber}</td>
+                    <td>${laptop.quantity}</td>
+                    <td>${laptop.price}</td>
+                    <td>${laptop.quantity * laptop.price}</td>
+                    <td>
+                        <button onclick="editLaptop(${index})">Edit</button>
+                        <button onclick="deleteLaptop(${index})">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function addLaptop() {
+            const brand = document.getElementById('brand').value;
+            const model = document.getElementById('model').value;
+            const serialNumber = document.getElementById('serialNumber').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const price = parseFloat(document.getElementById('price').value);
+            laptops.push({ brand, model, serialNumber, quantity, price });
+            localStorage.setItem('laptops', JSON.stringify(laptops));
+            displayLaptops();
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('brand').value = '';
+            document.getElementById('model').value = '';
+            document.getElementById('serialNumber').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('price').value = '';
+        }
+
+        function editLaptop(index) {
+            const laptop = laptops[index];
+            document.getElementById('brand').value = laptop.brand;
+            document.getElementById('model').value = laptop.model;
+            document.getElementById('serialNumber').value = laptop.serialNumber;
+            document.getElementById('quantity').value = laptop.quantity;
+            document.getElementById('price').value = laptop.price;
+            document.querySelector('.form-container button').textContent = 'Update Laptop';
+            document.querySelector('.form-container button').onclick = function() {
+                updateLaptop(index);
+            };
+        }
+
+        function updateLaptop(index) {
+            laptops[index].brand = document.getElementById('brand').value;
+            laptops[index].model = document.getElementById('model').value;
+            laptops[index].serialNumber = document.getElementById('serialNumber').value;
+            laptops[index].quantity = parseInt(document.getElementById('quantity').value);
+            laptops[index].price = parseFloat(document.getElementById('price').value);
+            localStorage.setItem('laptops', JSON.stringify(laptops));
+            displayLaptops();
+            clearForm();
+            document.querySelector('.form-container button').textContent = 'Add Laptop';
+            document.querySelector('.form-container button').onclick = addLaptop;
+        }
+
+        function deleteLaptop(index) {
+            laptops.splice(index, 1);
+            localStorage.setItem('laptops', JSON.stringify(laptops));
+            displayLaptops();
+        }
+
+        document.addEventListener('DOMContentLoaded', displayLaptops);
+    </script>
+</body>
+</html>
